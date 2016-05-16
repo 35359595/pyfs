@@ -16,7 +16,7 @@ VERSION:
 
 
 from urllib.request import urlopen
-from os.path import expanduser
+from os.path import expanduser, exists
 import sys as Sys
 import time
 
@@ -25,6 +25,17 @@ import time
 """Globals"""
 HOME = expanduser('~')
 
+
+"""Function for checking existance of working dir and list file"""
+
+def check_filesystem():
+    if not exists(HOME.__add__('/.tvcheck')):
+        os.makedirs(HOME.__add__('/.tvcheck'))
+
+    if not exists(HOME.__add__('/.tvcheck/list')):
+        with open(HOME.__add__('/.tvcheck/list'), mode = 'w+') as f:
+            print('No list file found.')
+            f.write(input('Paste episode list url:'))
 
 """Getting the list from file located @ fs server
 
@@ -42,17 +53,18 @@ def read_from_fs(url=None):
 USAGE: read_from_file('/path/name.extension')"""
 
 def read_from_file(path=None):
-    link_list = open(path, mode='rt', encoding='utf-8')
-    readed_list = list(link_list.readlines())
-    link_list.close()
+    readed_list = list()
+    with open(path, mode='rt', encoding='utf-8') as link_list:
+        readed_list = list(link_list.readlines())
+
     return readed_list
 
 """Appending one line to file, adding newline afterwards"""
 
 def append_to_file(path=None, new_link=None):
-    local_list = open(path, mode='at', encoding='utf-8')
-    local_list.write(new_link.__add__('\n'))
-    local_list.close()
+    with open(path, mode='at', encoding='utf-8') as local_list:
+        local_list.write(new_link.__add__('\n'))
+
 
 """Returns Mb from b rounded to .xx"""
 def round_to_mb(bts):
@@ -101,7 +113,7 @@ def download_episode(url=None, episode_name=None):
     with urlopen(url) as response, open(out_file, 'wb') as out_file:
         size = response.getheader("Content-Length")
         copyfileobject(response, out_file, callback, size) 
-        
+
 
 """Main function
 
@@ -113,6 +125,8 @@ ALGORYTHM:
     5. after successfull download append new episode to local list."""
 
 def main():
+
+    check_filesystem()
 
     #1:
     list_location = HOME.__add__('/.tvcheck/list')
