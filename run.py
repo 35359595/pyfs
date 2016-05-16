@@ -16,9 +16,14 @@ VERSION:
 
 
 from urllib.request import urlopen
+from os.path import expanduser
 import sys as Sys
 import time
 
+
+
+"""Globals"""
+HOME = expanduser('~')
 
 
 """Getting the list from file located @ fs server
@@ -91,7 +96,7 @@ def copyfileobject(fsrc, fdst, callback, size, length=16*1024):
 
 """Downloading function"""
 def download_episode(url=None, episode_name=None):
-    out_file = str('/home/jony/Downloads/')
+    out_file = HOME.__add__('/Downloads/')
     out_file = out_file.__add__(episode_name)
     with urlopen(url) as response, open(out_file, 'wb') as out_file:
         size = response.getheader("Content-Length")
@@ -110,12 +115,13 @@ ALGORYTHM:
 def main():
 
     #1:
-    local_list = read_from_file('/home/jony/.tvcheck/list')
+    list_location = HOME.__add__('/.tvcheck/list')
+    local_list = read_from_file(list_location)
     for url in local_list:
         remote_list = read_from_fs(url)
 
         #2:
-        local_list_name = str('/home/jony/.tvcheck/')
+        local_list_name = HOME.__add__('/.tvcheck/')
         local_list_name = local_list_name.__add__(url[19:].rstrip())
 
         local_list = read_from_file(local_list_name)
