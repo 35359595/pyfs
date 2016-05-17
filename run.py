@@ -24,7 +24,9 @@ import time
 
 """Globals"""
 HOME = expanduser('~')
-
+speed = 0
+metrics = 'bps'
+START_TIME = time.process_time()
 
 """Function for checking existance of working dir and list file"""
 
@@ -83,8 +85,19 @@ def print_progress(iteration, total, start, prefix = '', suffix = '', decimals =
     filledLength    = int(round(barLength * iteration / float(total)))
     percents        = round(100.00 * (iteration / float(total)), decimals)
     bar             = '#' * filledLength + '-' * (barLength - filledLength)
-    speed           = round((iteration*8//((time.process_time() - start)*1000)//1024//1024), decimals)
-    Sys.stdout.write('%s [%s] %s%s %s%s Kbps\r' % (prefix, bar, percents, '%', suffix, speed)),
+    #speed = round((iteration*8//((time.process_time() - start)*100)//1024//1024//1024), decimals)
+    global metrics
+    global START_TIME
+    global speed
+    if (time.process_time() - START_TIME) * 1000  > 5:
+        START_TIME = time.process_time()
+        speed           = round((iteration*8//((time.process_time() - start)*1000)//1024//1024), decimals)
+        metrics         = 'Kbps'
+        if speed > 1024:
+            speed = speed//1024
+            metrics = 'Mbps'
+
+    Sys.stdout.write('%s [%s] %s%s %s%s %s\r' % (prefix, bar, percents, '%', suffix, speed, metrics)),
     Sys.stdout.flush()
     if iteration == total:
         print("\n")
@@ -159,6 +172,8 @@ def main():
                 last_slash = new_link.rfind('/')
                 episode_name = new_link[last_slash+1:]
                 print('New episode:', episode_name)
+                global START_TIME
+                START_TIME = time.process_time()
                 download_episode(new_link, episode_name)
                 print(new_link)                #put download part here
                 #5:
