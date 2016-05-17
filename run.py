@@ -6,10 +6,15 @@ ABOUT:
     NOT been reported and will not be reviewed for fixes.
 
 AUTHOR:
-    Ivan Temchenko
+    Ivan Temchenko (C) 2016
 
 VERSION:
     51716.1109
+
+LICENSE:
+    Apache License Version 2.0
+
+    Read LICENSE file for details.
 
 """
 
