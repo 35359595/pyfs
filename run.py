@@ -9,14 +9,14 @@ AUTHOR:
     Ivan Temchenko
 
 VERSION:
-    51616.1038
+    51716.1109
 
 """
 
 
 
 from urllib.request import urlopen
-from os.path import expanduser, exists
+from os.path import expanduser, exists, join
 import sys as Sys
 import time
 
@@ -31,13 +31,13 @@ START_TIME = time.process_time()
 """Function for checking existance of working dir and list file"""
 
 def check_filesystem():
-    if not exists(HOME.__add__('/.tvcheck')):
-        os.makedirs(HOME.__add__('/.tvcheck'))
+    if not exists(join(HOME, '.tvcheck')):
+        os.makedirs(join(HOME, '.tvcheck'))
 
-    if not exists(HOME.__add__('/.tvcheck/list')):
-        with open(HOME.__add__('/.tvcheck/list'), mode = 'w+') as f:
+    if not exists(join(HOME, '.tvcheck', 'list')):
+        with open(join(HOME, '.tvcheck', 'list'), mode = 'w+') as new_list:
             print('No list file found.')
-            f.write(input('Paste episode list url:'))
+            new_list.write(input('Paste episode list url:'))
 
 """Getting the list from file located @ fs server
 
@@ -85,7 +85,6 @@ def print_progress(iteration, total, start, prefix = '', suffix = '', decimals =
     filledLength    = int(round(barLength * iteration / float(total)))
     percents        = round(100.00 * (iteration / float(total)), decimals)
     bar             = '#' * filledLength + '-' * (barLength - filledLength)
-    #speed = round((iteration*8//((time.process_time() - start)*100)//1024//1024//1024), decimals)
     global metrics
     global START_TIME
     global speed
@@ -121,8 +120,7 @@ def copyfileobject(fsrc, fdst, callback, size, length=16*1024):
 
 """Downloading function"""
 def download_episode(url=None, episode_name=None):
-    out_file = HOME.__add__('/Downloads/')
-    out_file = out_file.__add__(episode_name)
+    out_file = join(HOME, 'Downloads', episode_name)
     with urlopen(url) as response, open(out_file, 'wb') as out_file:
         size = response.getheader("Content-Length")
         copyfileobject(response, out_file, callback, size) 
@@ -142,15 +140,13 @@ def main():
     check_filesystem()
 
     #1:
-    list_location = HOME.__add__('/.tvcheck/list')
+    list_location = join(HOME, '.tvcheck', 'list')
     local_list = read_from_file(list_location)
     for url in local_list:
         remote_list = read_from_fs(url)
 
         #2:
-        local_list_name = HOME.__add__('/.tvcheck/')
-        local_list_name = local_list_name.__add__(url[19:].rstrip())
-
+        local_list_name = join(HOME, '.tvcheck', url[19:].rstrip())
         local_list = read_from_file(local_list_name)
 
         #3:
