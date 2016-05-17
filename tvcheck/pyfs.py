@@ -9,7 +9,7 @@ AUTHOR:
     Ivan Temchenko (C) 2016
 
 VERSION:
-    51716.1109
+    51716.1307
 
 LICENSE:
     Apache License Version 2.0
@@ -32,6 +32,12 @@ HOME = expanduser('~')
 speed = 0
 metrics = 'bps'
 START_TIME = time.process_time()
+
+"""Arg parsing function"""
+
+def arg_parsing():
+    if len(Sys.argv) > 1:
+        print('Found argument', Sys.argv[1])
 
 """Function for checking existance of working dir and list file"""
 
@@ -142,6 +148,7 @@ ALGORYTHM:
 
 def main():
 
+    arg_parsing()
     check_filesystem()
 
     #1:
