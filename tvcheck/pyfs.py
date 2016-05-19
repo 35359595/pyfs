@@ -25,19 +25,24 @@ from os.path import expanduser, exists, join
 import sys as Sys
 import time
 
-
-
 """Globals"""
 HOME = expanduser('~')
 speed = 0
 metrics = 'bps'
 START_TIME = time.process_time()
+list_location = join(HOME, '.tvcheck', 'list')
+
 
 """Arg parsing function"""
 
 def arg_parsing():
-    if len(Sys.argv) > 1:
-        print('Found argument', Sys.argv[1])
+    if not '' in Sys.argv:
+        if len(Sys.argv[1]) > 1:
+            args = False
+        else:
+            args = Sys.argv
+    return args
+
 
 """Function for checking existance of working dir and list file"""
 
@@ -148,11 +153,40 @@ ALGORYTHM:
 
 def main():
 
-    arg_parsing()
+    args = arg_parsing()
     check_filesystem()
 
+    if args:
+        if len(args) > 2:
+            print('To many arguments, bye!')
+            Sys.exit()
+        elif args[1] == 'l':
+            for series in read_from_file(join(HOME, '.tvcheck', 'list')):
+                print(series)
+            Sys.exit()
+        elif args[1] == 'n':
+            new_url = input('Provide URL of new list in format http://fs.to/flist/...:')
+            if new_url[:19] == 'http://fs.to/flist/':
+                append_to_file(list_location, new_url)
+            else:
+                print('Wrong Url format, bye!')
+                Sys.exit()
+        elif args[1] == 'h':
+            print("""
+Parameters:\n
+    h - show this help;\n
+    l - show local series list;\n
+    n - add series to local list (follow the instructions).\n""")
+            Sys.exit()
+        else:
+            while True:
+                decision = input("Parameter not found. Continue check? Y/N: ")
+                if decision.upper() == 'Y':
+                    break
+                elif decision.upper() == 'N':
+                    Sys.exit()
+
     #1:
-    list_location = join(HOME, '.tvcheck', 'list')
     local_list = read_from_file(list_location)
     for url in local_list:
         remote_list = read_from_fs(url)
