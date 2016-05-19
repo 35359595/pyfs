@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """fs.to tvcheck by Ivan Temchenko @ yandex.ua
 
-ABOUT:
+@about:
     This program writen to be runned with python version 3. Any problems with other python versions should
     NOT been reported and will not be reviewed for fixes.
 
-AUTHOR:
+@author:
     Ivan Temchenko (C) 2016
 
-VERSION:
-    51716.1307
+@version:
+    51916.1340
 
-LICENSE:
+@license:
     Apache License Version 2.0
 
     Read LICENSE file for details.
@@ -19,13 +19,13 @@ LICENSE:
 """
 
 
-
 from urllib.request import urlopen
 from os.path import expanduser, exists, join
+from os import makedirs
 import sys as Sys
 import time
 
-"""Globals"""
+#Globals
 HOME = expanduser('~')
 speed = 0
 metrics = 'bps'
@@ -33,65 +33,57 @@ START_TIME = time.process_time()
 list_location = join(HOME, '.tvcheck', 'list')
 
 
-"""Arg parsing function"""
-
 def arg_parsing():
+    """Arg parsing function"""
+    args = False
     if not '' in Sys.argv:
-        if len(Sys.argv[1]) > 1:
-            args = False
-        else:
+        if len(Sys.argv[1]) == 1:
             args = Sys.argv
     return args
 
 
-"""Function for checking existance of working dir and list file"""
-
 def check_filesystem():
+    """Function for checking existance of working dir and list file"""
     if not exists(join(HOME, '.tvcheck')):
-        os.makedirs(join(HOME, '.tvcheck'))
+        makedirs(join(HOME, '.tvcheck'))
 
     if not exists(join(HOME, '.tvcheck', 'list')):
         with open(join(HOME, '.tvcheck', 'list'), mode = 'w+') as new_list:
             print('No list file found.')
             new_list.write(input('Paste episode list url:'))
 
-"""Getting the list from file located @ fs server
-
-PARAM: url - http link to file"""
 
 def read_from_fs(url=None):
+    """Getting the list from file located @ fs server
+    @params:
+        url - http link to file"""
     with urlopen(url) as remote_list:
         urls = list()
         for line in remote_list:
             urls.append(line.decode('utf-8'))
         return urls
 
-"""Reading lines from file and returning array of lines
-
-USAGE: read_from_file('/path/name.extension')"""
 
 def read_from_file(path=None):
-    readed_list = list()
+    """Reading lines from file and returning array of lines
+    @usage: read_from_file('/path/name.extension')"""
     with open(path, mode='rt', encoding='utf-8') as link_list:
-        readed_list = list(link_list.readlines())
+        return list(link_list.readlines())
 
-    return readed_list
-
-"""Appending one line to file, adding newline afterwards"""
 
 def append_to_file(path=None, new_link=None):
+    """Appending one line to file, adding newline afterwards"""
     with open(path, mode='at', encoding='utf-8') as local_list:
         local_list.write(new_link.__add__('\n'))
 
 
-"""Returns Mb from b rounded to .xx"""
 def round_to_mb(bts):
+    """Returns Mb from b rounded to .xx"""
     return round((int(bts) / 1024 / 1024), 2)
 
 
 def print_progress(iteration, total, start, prefix = '', suffix = '', decimals = 2, barLength = 100):
-    """
-    Call in a loop to create terminal progress bar
+    """Call in a loop to create terminal progress bar
     @params:
         iteration   - Required  : current iteration (Int)
         total       - Required  : total iterations (Int)
@@ -106,7 +98,7 @@ def print_progress(iteration, total, start, prefix = '', suffix = '', decimals =
     global speed
     if (time.process_time() - START_TIME) * 1000  > 5:
         START_TIME = time.process_time()
-        speed           = round((iteration*8//((time.process_time() - start)*1000)//1024//1024), decimals)
+        speed           = round((iteration*8//(time.process_time() - start)//1024), decimals)
         metrics         = 'Kbps'
         if speed > 1024:
             speed = speed//1024
@@ -118,12 +110,14 @@ def print_progress(iteration, total, start, prefix = '', suffix = '', decimals =
         print("\n")
 
 
-"""Downloading progress displaying function"""
 def callback(progress, size=0):
+    """Downloading progress displaying function"""
     start = time.process_time()
     print_progress(progress, size, start, prefix = 'Downloading:', suffix = 'Speed:', barLength = 50)
 
+
 def copyfileobject(fsrc, fdst, callback, size, length=16*1024):
+    """Function for saving the file. Iteration with callable function."""
     copied = 0
     while True:
         buf = fsrc.read(length)
@@ -134,26 +128,24 @@ def copyfileobject(fsrc, fdst, callback, size, length=16*1024):
         callback(copied, size)
         
 
-"""Downloading function"""
 def download_episode(url=None, episode_name=None):
+    """Downloading function"""
     out_file = join(HOME, 'Downloads', episode_name)
     with urlopen(url) as response, open(out_file, 'wb') as out_file:
         size = response.getheader("Content-Length")
         copyfileobject(response, out_file, callback, size) 
 
 
-"""Main function
-
-ALGORYTHM: 
-    1. reads list of series from list file;
-    2. reads list of episodes from each of the series;
-    3. compares the list of episodes from fs.to with local list;
-    4. if new episodes found - downloading with aria2;
-    5. after successfull download append new episode to local list."""
-
 def main():
+    """Main function
+    @algorythm:
+        1. reads list of series from list file;
+        2. reads list of episodes from each of the series;
+        3. compares the list of episodes from fs.to with local list;
+        4. if new episodes found - downloading with aria2;
+        5. after successfull download append new episode to local list."""
 
-    args = arg_parsing()
+    args = list(arg_parsing())
     check_filesystem()
 
     if args:
@@ -217,13 +209,12 @@ Parameters:\n
                 global START_TIME
                 START_TIME = time.process_time()
                 download_episode(new_link, episode_name)
-                print(new_link)                #put download part here
+                print(new_link)
                 #5:
                 append_to_file(local_list_name, new_link)
                 
 
-"""call execution if runned from console"""
-
+#call execution if runned from console
 if __name__ == '__main__':
     main()
 

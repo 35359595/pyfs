@@ -3,3 +3,4 @@ __main__.py
 setup.py
 tvcheck/__init__.py
 tvcheck/pyfs.py
+tvcheck/testring.py

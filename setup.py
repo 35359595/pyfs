@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='tvcheck',
-    version='17516.1307',
+    version='51916.1340',
     packages=['tvcheck'],
     py_modules=['__main__'],
     author='Ivan Temchenko',
