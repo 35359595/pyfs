@@ -35,8 +35,8 @@ list_location = join(HOME, '.tvcheck', 'list')
 
 def arg_parsing():
     """Arg parsing function"""
-    args = False
-    if not '' in Sys.argv:
+    args = list()
+    if len(list(Sys.argv)) > 2:
         if len(Sys.argv[1]) == 1:
             args = Sys.argv
     return args
